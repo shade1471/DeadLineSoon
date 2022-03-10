@@ -1,5 +1,6 @@
 package ru.netology.web.web;
 
+import com.github.javafaker.Faker;
 import lombok.SneakyThrows;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanHandler;
@@ -12,23 +13,6 @@ import ru.netology.web.data.User;
 import java.sql.DriverManager;
 
 public class DbInteractionDbUtils {
-    @BeforeEach
-    @SneakyThrows
-    void connectToDb() {
-        var runner = new QueryRunner();
-        var dataSQL = "INSERT INTO users(login, password) VALUES (?, ?);";
-
-        try (
-                var conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/app", "app", "pass"
-                );
-
-        ) {
-//            // обычная вставка
-//            runner.update(conn, dataSQL, faker.name().username(), "pass");
-//            runner.update(conn, dataSQL, faker.name().username(), "pass");
-        }
-    }
 
     @Test
     @SneakyThrows
@@ -39,15 +23,18 @@ public class DbInteractionDbUtils {
 
         try (
                 var conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/app", "app", "pass"
+                        "jdbc:mysql://localhost:3306/app", "shade1471", "shade1471"
                 );
         ) {
-          var count = runner.query(conn, countSQL, new ScalarHandler<>());
-          System.out.println(count);
-          var first = runner.query(conn, usersSQL, new BeanHandler<>(User.class));
-          System.out.println(first);
-          var all = runner.query(conn, usersSQL, new BeanListHandler<>(User.class));
-          System.out.println(all);
+            var first = runner.query(conn, usersSQL, new BeanHandler<>(User.class));
+            var login = first.getLogin();
+            var password = first.getPassword();
+
+            var all = runner.query(conn, usersSQL, new BeanListHandler<>(User.class));
+            all.get(0).getLogin();
+
+            System.out.println(all);
         }
     }
 }
+

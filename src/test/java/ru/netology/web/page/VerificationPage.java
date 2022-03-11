@@ -1,6 +1,7 @@
 package ru.netology.web.page;
 
 import com.codeborne.selenide.SelenideElement;
+import lombok.SneakyThrows;
 import ru.netology.web.data.DataHelper;
 
 import static com.codeborne.selenide.Condition.text;
@@ -31,4 +32,9 @@ public class VerificationPage {
         errorNotification.shouldHave(text("Неверно указан код! Попробуйте ещё раз."));
     }
 
+    @SneakyThrows
+    public void invalidVerifyMoreThreeTimes(DataHelper.VerificationCode code) {
+        dataInput(code);
+        errorNotification.shouldHave(text("Превышено количество попыток ввода кода!"));
+    }
 }

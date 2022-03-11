@@ -10,25 +10,16 @@ import static ru.netology.web.data.DataHelper.*;
 
 public class AuthTest {
 
-    private DataHelper.AuthInfo newAuthInfo = DataHelper.getNewAuthInfo();
-
     @BeforeEach
     void setup() {
         open("http://localhost:9999");
     }
 
     @Test
-    void shouldAuthForFirstExistUser() {
+    void shouldAuthByFirstExistUser() {
         var loginPage = new LoginPage();
         var verificationPage = loginPage.validLogin(getAuthInfoExist(1));
         verificationPage.validVerify(getVerificationCodeFor(getAuthInfoExist(1).getLogin()));
-    }
-
-    @Test
-    void shouldAuthForSecondExistUser() {
-        var loginPage = new LoginPage();
-        var verificationPage = loginPage.validLogin(getAuthInfoExist(2));
-        verificationPage.validVerify(getVerificationCodeFor(getAuthInfoExist(2).getLogin()));
     }
 
     @Test
@@ -40,8 +31,10 @@ public class AuthTest {
 
     @Test
     void shouldAuthWithWrongCode() {
+        DataHelper.AuthInfo user = getNewAuthInfo();
+        addUser(user);
         var loginPage = new LoginPage();
-        var verificationPage = loginPage.validLogin(getAuthInfoExist(2));
+        var verificationPage = loginPage.validLogin(user);
         verificationPage.invalidVerify(getWrongCode());
     }
 
@@ -54,16 +47,22 @@ public class AuthTest {
         verificationPage.validVerify(getVerificationCodeFor(user.getLogin()));
     }
 
+    @Test
+    void authWithWrongCodeMoreThreeTimes() {
+        DataHelper.AuthInfo user = getNewAuthInfo();
+        addUser(user);
 
-
-//    @Test
-//    void shouldAuthForNewUser() {
-//        addUser(authInfo);
-//        var loginPage = new LoginPage();
-//        var verificationPage = loginPage.validLogin(authInfo);
-//        verificationPage.validVerify(getVerificationCodeFor(getAuthInfoExist(2).getLogin()));
-//
-//    }
+        for (int i = 0; i < 3; i++) {
+            open("http://localhost:9999");
+            var loginPage = new LoginPage();
+            var verificationPage = loginPage.validLogin(user);
+            verificationPage.invalidVerify(getWrongCode());
+        }
+        open("http://localhost:9999");
+        var loginPage = new LoginPage();
+        var verificationPage = loginPage.validLogin(user);
+        verificationPage.invalidVerifyMoreThreeTimes(getWrongCode());
+    }
 
 }
 

@@ -28,10 +28,4 @@ public class LoginPage {
         errorNotification.shouldHave(text("Ошибка! Неверно указан логин или пароль"));
     }
 
-    public void invalidLoginMoreThreeTimes(DataHelper.AuthInfo info) {
-        dataInput(info.getLogin(), info.getPassword());
-        loginButton.click();
-        loginButton.click();
-//        errorNotification.shouldHave(text("Неверно указан код! Попробуйте ещё раз."));
-    }
 }

@@ -49,12 +49,11 @@ public class DataHelper {
     }
 
     public static AuthInfo getAuthInfoInvalid() {
-        return new AuthInfo(getLoginExistUser(1), "qwerty");
+        return new AuthInfo("vasya", "qwerty");
     }
 
     @SneakyThrows
     public static void addUser(AuthInfo info) {
-        QueryRunner runner = new QueryRunner();
         var dataSQL = "INSERT INTO users(id, login, password) VALUES(?, ?, ?);";
         try (
                 var conn = DriverManager.getConnection(

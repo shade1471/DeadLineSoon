@@ -1,9 +1,9 @@
-package ru.netology.web.web;
+package ru.netology.web;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.netology.web.data.DataHelper;
-import ru.netology.web.ru.netology.page.LoginPage;
+import ru.netology.web.page.LoginPage;
 
 import static com.codeborne.selenide.Selenide.open;
 import static ru.netology.web.data.DataHelper.*;
@@ -19,49 +19,39 @@ public class AuthTest {
 
     @Test
     void shouldAuthForFirstExistUser() {
-
         var loginPage = new LoginPage();
         var verificationPage = loginPage.validLogin(getAuthInfoExist(1));
         verificationPage.validVerify(getVerificationCodeFor(getAuthInfoExist(1).getLogin()));
-
     }
 
     @Test
     void shouldAuthForSecondExistUser() {
-
         var loginPage = new LoginPage();
         var verificationPage = loginPage.validLogin(getAuthInfoExist(2));
         verificationPage.validVerify(getVerificationCodeFor(getAuthInfoExist(2).getLogin()));
-
     }
 
     @Test
     void shouldAuthIfUserExistWithWrongPassword() {
         AuthInfo info = getAuthInfoInvalid();
-
         var loginPage = new LoginPage();
         loginPage.invalidLogin(info);
-
     }
 
     @Test
     void shouldAuthWithWrongCode() {
-
         var loginPage = new LoginPage();
         var verificationPage = loginPage.validLogin(getAuthInfoExist(2));
         verificationPage.invalidVerify(getWrongCode());
-
     }
 
     @Test
-    void shouldAuthWithWrongPasswordMoreThreeTimes() {
-        DataHelper.AuthInfo user = DataHelper.getNewAuthInfo();
+    void shouldAuthByNewUser() {
+        DataHelper.AuthInfo user = getNewAuthInfo();
         addUser(user);
-
         var loginPage = new LoginPage();
-        loginPage.invalidLoginMoreThreeTimes(new AuthInfo(user.getLogin(), "qwerty"));
-
-
+        var verificationPage = loginPage.validLogin(user);
+        verificationPage.validVerify(getVerificationCodeFor(user.getLogin()));
     }
 
 

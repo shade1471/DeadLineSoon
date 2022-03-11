@@ -9,6 +9,7 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import java.sql.DriverManager;
 import java.util.Locale;
+import java.util.UUID;
 
 public class DataHelper {
     private static QueryRunner runner = new QueryRunner();
@@ -23,13 +24,11 @@ public class DataHelper {
     }
 
     public static AuthInfo getAuthInfoExist(int number) {
-        return new AuthInfo(getLoginExistUser(number), getPasswordExistUser(getLoginExistUser(number)));
+        return new AuthInfo(getLoginExistUser(number), getPasswordUser(getLoginExistUser(number)));
     }
 
     @SneakyThrows
     public static String getLoginExistUser(int number) {
-
-
         var usersSQL = "SELECT * FROM users;";
         try (
                 var conn = DriverManager.getConnection(
@@ -41,7 +40,7 @@ public class DataHelper {
         }
     }
 
-    public static String getPasswordExistUser(String user) {
+    public static String getPasswordUser(String user) {
         if (user.equals("petya")) {
             return "123qwerty";
         } else {
@@ -62,12 +61,13 @@ public class DataHelper {
                         "jdbc:mysql://localhost:3306/app", "shade1471", "shade1471"
                 );
         ) {
-            runner.update(conn, dataSQL,"407d235e-3456-432c-4fg1-85077e1df297", info.getLogin(), info.getPassword());
+            String id = UUID.randomUUID().toString();
+            runner.update(conn, dataSQL, id, info.getLogin(), getExistPassword());
         }
     }
 
-    public static AuthInfo getNewAuthInfo(){
-        return new AuthInfo(DataHelper.generateLogin("en"), "$2a$10$ku1fTclpxp0umxAiqrztLuii64OOaNvausRy/V4OW2a85LQ0Ww2uu");
+    public static AuthInfo getNewAuthInfo() {
+        return new AuthInfo(DataHelper.generateLogin("en"), "qwerty123");
     }
 
     public static String generateLogin(String locale) {
@@ -75,17 +75,29 @@ public class DataHelper {
         return login;
     }
 
+    //Получить зашифрованный пароль для qwerty123
+    @SneakyThrows
+    public static String getExistPassword() {
+        var passwordSQL = "SELECT password" +
+                " FROM users" +
+                " WHERE login='vasya'";
 
-
-//    public static AuthInfo getInvalidAuthInfo(AuthInfo original) {
-//        return new AuthInfo(DataHelper.generateLogin("en"), DataHelper.generatePassword("en"));
-//    }
+        try (
+                var conn = DriverManager.getConnection(
+                        "jdbc:mysql://localhost:3306/app", "shade1471", "shade1471"
+                );
+        ) {
+            var password = runner.query(conn, passwordSQL, new ScalarHandler<>()).toString();
+            return password;
+        }
+    }
 
     @Value
     public static class VerificationCode {
         private String code;
     }
-    public static  VerificationCode getWrongCode(){
+
+    public static VerificationCode getWrongCode() {
         return new VerificationCode("11111");
     }
 

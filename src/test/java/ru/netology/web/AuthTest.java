@@ -18,10 +18,10 @@ public class AuthTest {
         open("http://localhost:9999");
     }
 
-//    @AfterAll
-//    public static void clear() {
-//        clearAll();
-//    }
+    @AfterAll
+    public static void clear() {
+        clearAll();
+    }
 
     @Test
     void shouldAuthByFirstExistUser() {

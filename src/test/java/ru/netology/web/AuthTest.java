@@ -8,6 +8,8 @@ import ru.netology.web.page.LoginPage;
 
 import static com.codeborne.selenide.Selenide.open;
 import static ru.netology.web.data.DataHelper.*;
+import static ru.netology.web.data.DataHelper.AuthInfo.*;
+import static ru.netology.web.utils.SQLRequest.*;
 
 public class AuthTest {
 
@@ -16,10 +18,10 @@ public class AuthTest {
         open("http://localhost:9999");
     }
 
-    @AfterAll
-    public static void clear() {
-        clearAll();
-    }
+//    @AfterAll
+//    public static void clear() {
+//        clearAll();
+//    }
 
     @Test
     void shouldAuthByFirstExistUser() {
@@ -38,7 +40,7 @@ public class AuthTest {
     @Test
     void shouldAuthWithWrongCode() {
         DataHelper.AuthInfo user = getNewAuthInfo();
-        addUser(user);
+        addNewUser(user);
         var loginPage = new LoginPage();
         var verificationPage = loginPage.validLogin(user);
         verificationPage.invalidVerify(getWrongCode());
@@ -47,7 +49,7 @@ public class AuthTest {
     @Test
     void shouldAuthByNewUser() {
         DataHelper.AuthInfo user = getNewAuthInfo();
-        addUser(user);
+        addNewUser(user);
         var loginPage = new LoginPage();
         var verificationPage = loginPage.validLogin(user);
         verificationPage.validVerify(getVerificationCodeFor(user.getLogin()));
@@ -56,7 +58,7 @@ public class AuthTest {
     @Test
     void authWithWrongCodeMoreThreeTimes() {
         DataHelper.AuthInfo user = getNewAuthInfo();
-        addUser(user);
+        addNewUser(user);
 
         for (int i = 0; i < 3; i++) {
             open("http://localhost:9999");

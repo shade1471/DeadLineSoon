@@ -7,6 +7,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.Locale;
 import java.util.UUID;
@@ -28,16 +29,18 @@ public class DataHelper {
     }
 
     @SneakyThrows
+    public static Connection connection() {
+            var conn = DriverManager.getConnection(
+                    "jdbc:mysql://localhost:3306/app", "shade1471", "shade1471");
+            return conn;
+    }
+
+    @SneakyThrows
     public static String getLoginExistUser(int number) {
         var usersSQL = "SELECT * FROM users;";
-        try (
-                var conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/app", "shade1471", "shade1471"
-                );
-        ) {
-            var all = runner.query(conn, usersSQL, new BeanListHandler<>(User.class));
-            return all.get(all.size() - number).getLogin();
-        }
+
+        var all = runner.query(connection(), usersSQL, new BeanListHandler<>(User.class));
+        return all.get(all.size() - number).getLogin();
     }
 
     public static String getPasswordUser(String user) {
@@ -55,14 +58,9 @@ public class DataHelper {
     @SneakyThrows
     public static void addUser(AuthInfo info) {
         var dataSQL = "INSERT INTO users(id, login, password) VALUES(?, ?, ?);";
-        try (
-                var conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/app", "shade1471", "shade1471"
-                );
-        ) {
-            String id = UUID.randomUUID().toString();
-            runner.update(conn, dataSQL, id, info.getLogin(), getExistPassword());
-        }
+
+        String id = UUID.randomUUID().toString();
+        runner.update(connection(), dataSQL, id, info.getLogin(), getExistPassword());
     }
 
     public static AuthInfo getNewAuthInfo() {
@@ -81,14 +79,8 @@ public class DataHelper {
                 " FROM users" +
                 " WHERE login='vasya'";
 
-        try (
-                var conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/app", "shade1471", "shade1471"
-                );
-        ) {
-            var password = runner.query(conn, passwordSQL, new ScalarHandler<>()).toString();
-            return password;
-        }
+        var password = runner.query(connection(), passwordSQL, new ScalarHandler<>()).toString();
+        return password;
     }
 
     @Value
@@ -109,13 +101,18 @@ public class DataHelper {
                 " ORDER BY created DESC" +
                 " LIMIT 1;";
 
-        try (
-                var conn = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/app", "shade1471", "shade1471"
-                );
-        ) {
-            var code = runner.query(conn, codeSQL, new ScalarHandler<>()).toString();
-            return new VerificationCode(code);
-        }
+        var code = runner.query(connection(), codeSQL, new ScalarHandler<>()).toString();
+        return new VerificationCode(code);
+    }
+
+    @SneakyThrows
+    public static void clearAll() {
+        var cardsClearSQL = "DELETE FROM cards";
+        var auth_codesClearSQL = "DELETE FROM auth_codes";
+        var usersClearSQL = "DELETE FROM users";
+
+        runner.update(connection(), cardsClearSQL);
+        runner.update(connection(), auth_codesClearSQL);
+        runner.update(connection(), usersClearSQL);
     }
 }
